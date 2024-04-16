@@ -13,4 +13,4 @@ WORKDIR /app
 COPY ./Rasukan*-0.0.1-SNAPSHOT.jar /app
 RUN ls -la
 EXPOSE 8080
-CMD ["java","-jar","heymart-product-0.0.1-SNAPSHOT.jar"]
+CMD ["java","-jar","Rasukan*-0.0.1-SNAPSHOT.jar"]
