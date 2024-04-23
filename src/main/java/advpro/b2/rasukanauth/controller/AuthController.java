@@ -1,5 +1,9 @@
 package advpro.b2.rasukanauth.controller;
 
+import advpro.b2.rasukanauth.model.builder.UserBuilder;
+import advpro.b2.rasukanauth.service.AuthService;
+import advpro.b2.rasukanauth.service.AuthServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -7,10 +11,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 class AuthController {
 
+//    AuthService authService = new AuthServiceImpl();
+
+    @Autowired
+    AuthService authService;
+
     @PostMapping("/register")
     @ResponseBody
-    public String register() {
-        return "Hi, this API currently is not functional. Thanks for the interest";
+    public String register(@ModelAttribute UserBuilder userBuilder) {
+        return authService.register(userBuilder);
     }
 
     @PostMapping("/login")
