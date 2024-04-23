@@ -28,21 +28,30 @@ public class User {
     private Long balance;
 
     @Column(name = "is_staff", nullable = false)
-    private Boolean isStaff;
+    private boolean isStaff;
+
+    @Column(name = "token")
+    private String token;
 
     public User() {}
 
-    public User(String name, String email, String password, String phoneNumber, Long balance, Boolean isStaff) {
+    public User(String name, String email, String password, String phoneNumber, Long balance, boolean isStaff, String token) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.phoneNumber = phoneNumber;
         this.balance = balance;
         this.isStaff = isStaff;
+        this.token = token;
     }
 
-    public String getId() {
-        return id.toString();
+    public User(UUID id, String name, String email, String password, String phoneNumber, Long balance, boolean isStaff, String token) {
+        this(name, email, password, phoneNumber, balance, isStaff, token);
+        this.id = id;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {
@@ -65,7 +74,11 @@ public class User {
         return balance;
     }
 
-    public Boolean isStaff() {
+    public boolean isStaff() {
         return isStaff;
+    }
+
+    public String getToken() {
+        return token;
     }
 }
