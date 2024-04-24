@@ -1,5 +1,7 @@
 package advpro.b2.rasukanauth.controller;
 
+import advpro.b2.rasukanauth.model.builder.UserBuilder;
+import advpro.b2.rasukanauth.service.AuthService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +9,14 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -23,15 +27,15 @@ class AuthControllerTest {
     @Autowired
     MockMvc mvc;
 
+    @MockBean
+    private AuthService authService;
+
     @BeforeAll
     static void setUp() {}
 
     @Test
     void testRegister_success() throws Exception {
-//        Map<String, String> map = new HashMap<>();
-//        List<String> name = new ArrayList<>();
-//        name.add("Test 1");
-//        List<>
+        doReturn("02619f07-c3e1-408e-bc1c-028e20cfe79e").when(authService).register(any(UserBuilder.class));
         mvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1")
