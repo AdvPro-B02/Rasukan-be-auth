@@ -46,15 +46,16 @@ public class UserServiceTest {
         userBuilder.setName("TestService");
         userBuilder.setEmail("service@test.com");
         userBuilder.setPassword("servicetest");
+        User userExp = userBuilder.build();
 
-        doReturn("68e1011c-0021-4ae9-9d11-0deabf9cb449").when(userRepository).save(userBuilder.build());
+        doReturn(userExp).when(userRepository).save(any(User.class));
 
         User user = userService.createUser(userBuilder);
-        verify(userRepository, times(1)).save(userBuilder.build());
-        assertEquals("68e1011c-0021-4ae9-9d11-0deabf9cb449", user.getId().toString());
-        assertEquals("TestService", user.getName());
-        assertEquals("service@test.com", user.getEmail());
-        assertEquals("servicetest", user.getPassword());
+        verify(userRepository, times(1)).save(any(User.class));
+        assertEquals(userExp.getId(), user.getId());
+        assertEquals(userExp.getName(), user.getName());
+        assertEquals(userExp.getEmail(), user.getEmail());
+        assertEquals(userExp.getPassword(), user.getPassword());
         assertFalse(user.isStaff());
     }
 
