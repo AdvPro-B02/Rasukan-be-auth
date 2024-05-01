@@ -2,10 +2,15 @@ package advpro.b2.rasukanauth.repository;
 
 import advpro.b2.rasukanauth.model.User;
 import advpro.b2.rasukanauth.model.builder.UserBuilder;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.UUID;
 
@@ -13,9 +18,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @DataJpaTest
+@Transactional
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class UserRepositoryTest {
 
-    @MockBean
+    @Autowired
     UserRepository userRepository;
 
     private UserBuilder builder;
@@ -36,7 +43,7 @@ public class UserRepositoryTest {
         User user = builder.build();
         String email = "test1@test.com";
         String password = "test1";
-        doReturn(user).when(userRepository).findByEmailAndPassword(email, password);
+        user = userRepository.save(user);
 
         User searchUser = userRepository.findByEmailAndPassword(email, password);
         assertNotNull(searchUser);
@@ -46,11 +53,12 @@ public class UserRepositoryTest {
 
     @Test
     void testFindUserByEmailAndPassword_fail() {
-        String email = "test1@test.com";
+        User user = builder.build();
+        String email = "test2@test.com";
         String password = "test1";
-        doReturn(null).when(userRepository).findByEmailAndPassword(email, password);
+        userRepository.save(user);
 
-        User user = userRepository.findByEmailAndPassword(email, password);
-        assertNull(user);
+        User searchedUser = userRepository.findByEmailAndPassword(email, password);
+        assertNull(searchedUser);
     }
 }
