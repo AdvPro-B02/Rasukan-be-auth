@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,26 +37,29 @@ public class UserServiceTest {
     @MockBean
     private UserRepository userRepository;
 
-    @BeforeEach
-    void setUp() {}
+    private User testUser;
+    private UserBuilder userBuilder;
 
-    @Test
-    void testCreateUser_success() {
-        UserBuilder userBuilder = new UserBuilder();
+    @BeforeEach
+    void setUp() {
+        userBuilder = new UserBuilder();
         userBuilder.setId(UUID.fromString("68e1011c-0021-4ae9-9d11-0deabf9cb449"));
         userBuilder.setName("TestService");
         userBuilder.setEmail("service@test.com");
         userBuilder.setPassword("servicetest");
-        User userExp = userBuilder.build();
+        testUser = userBuilder.build();
+    }
 
-        doReturn(userExp).when(userRepository).save(any(User.class));
+    @Test
+    void testCreateUser_success() {
+        doReturn(testUser).when(userRepository).save(any(User.class));
 
         User user = userService.createUser(userBuilder);
         verify(userRepository, times(1)).save(any(User.class));
-        assertEquals(userExp.getId(), user.getId());
-        assertEquals(userExp.getName(), user.getName());
-        assertEquals(userExp.getEmail(), user.getEmail());
-        assertEquals(userExp.getPassword(), user.getPassword());
+        assertEquals(testUser.getId(), user.getId());
+        assertEquals(testUser.getName(), user.getName());
+        assertEquals(testUser.getEmail(), user.getEmail());
+        assertEquals(testUser.getPassword(), user.getPassword());
         assertFalse(user.isStaff());
     }
 
@@ -67,5 +71,25 @@ public class UserServiceTest {
     @Test
     void testGetAllUsers() {
         assertNull(userService.getAllUser());
+    }
+
+    @Test
+    void testGetUserByEmailAndPassword_success() {
+        doReturn(testUser).when(userRepository).findByEmailAndPassword(any(String.class), any(String.class));
+
+        String userId = userService.getUserByEmailAndPassword("service@test.com", "servicetest");
+        verify(userRepository, times(1)).findByEmailAndPassword(any(String.class), any(String.class));
+        assertEquals(userId, testUser.getId().toString());
+    }
+
+    @Test
+    void testGetUserByEmailAndPassword_fail() {
+        doReturn(null).when(userRepository).findByEmailAndPassword(any(String.class), any(String.class));
+
+        assertThrows(
+                NoSuchElementException.class,
+                () -> userService.getUserByEmailAndPassword("service@service.com", "servicetest")
+        );
+        verify(userRepository, times(1)).findByEmailAndPassword(any(String.class), any(String.class));
     }
 }
