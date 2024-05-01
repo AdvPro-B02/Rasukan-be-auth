@@ -11,10 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Map;
-import java.util.List;
-import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -35,24 +32,80 @@ class AuthControllerTest {
 
     @Test
     void testRegister_success() throws Exception {
-        doReturn("02619f07-c3e1-408e-bc1c-028e20cfe79e").when(authService).register(any(UserBuilder.class));
         mvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1")
-                        .with(csrf()))
-            .andExpect(status().isOk())
-            .andExpect(content().string(
-                "02619f07-c3e1-408e-bc1c-028e20cfe79e"
-            ));
+                        .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1"))
+            .andExpect(status().isCreated());
+    }
+
+    @Test
+    void testRegisterNonUniqueEmail_fail() throws Exception {
+        mvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1"))
+            .andExpect(status().isCreated());
+
+        doThrow(RuntimeException.class).when(authService).register(any(UserBuilder.class));
+        mvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("id=b9eed58d-031c-466f-bdb8-2cf95a9d11e1&name=Test2&email=test1@test.com&password=test2"))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
     void testLogin_success() throws Exception {
-        mvc.perform(post("/auth/login").with(csrf()))
+        mvc.perform(post("/auth/register")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1"));
+
+        doReturn("dummy-token").when(authService).login(any(String.class), any(String.class));
+        mvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("email=test1@test.com&password=test1"))
             .andExpect(status().isOk())
-            .andExpect(content().string(
-                "Hi, this API currently is not functional. Thanks for the interest"
-            ));
+            .andExpect(header().exists("Authorization"));
+    }
+
+    @Test
+    void testLoginIncorrectEmail_fail() throws Exception {
+        mvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1"));
+
+        doThrow(NoSuchElementException.class).when(authService).login(any(String.class), any(String.class));
+        mvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("email=test2@test.com&password=test1"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().doesNotExist("Authorization"));
+    }
+
+    @Test
+    void testLoginIncorrectPassword_fail() throws Exception {
+        mvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1"));
+
+        doThrow(NoSuchElementException.class).when(authService).login(any(String.class), any(String.class));
+        mvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("email=test1@test.com&password=test2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().doesNotExist("Authorization"));
+    }
+
+    @Test
+    void testLoginIncorrectEmailAndPassword_fail() throws Exception {
+        mvc.perform(post("/auth/register")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1"));
+
+        doThrow(NoSuchElementException.class).when(authService).login(any(String.class), any(String.class));
+        mvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .content("email=test2@test.com&password=test2"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().doesNotExist("Authorization"));
     }
 
     @Test
