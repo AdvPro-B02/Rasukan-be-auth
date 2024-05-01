@@ -11,6 +11,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Base64;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -54,8 +56,23 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testLogin() {
-        assertNull(authService.login());
+    void testLogin_success() {
+        String id = UUID.randomUUID().toString();
+        String email = "test@test.com";
+        String password = "testpass";
+        doReturn(id).when(userService).getUserByEmailAndPassword(email, password);
+
+        assertDoesNotThrow(() -> authService.login(email, password));
+        verify(userService, times(1)).getUserByEmailAndPassword(email, password);
+    }
+
+    @Test
+    void testLogin_failed() {
+        String email = "test@test.com";
+        String password = "test123pass";
+        doThrow(NoSuchElementException.class).when(userService).getUserByEmailAndPassword(email, password);
+
+        assertThrows(NoSuchElementException.class, () -> authService.login(email, password));
     }
 
     @Test
@@ -65,7 +82,13 @@ public class AuthServiceTest {
 
     @Test
     void testGenerateToken() {
-        assertNull(authService.generateToken());
+        String id = UUID.randomUUID().toString();
+        String authToken = authService.generateToken(id);
+        Base64.Decoder decoder = Base64.getDecoder();
+        String authTokenDec = new String(decoder.decode(authToken));
+        String idRev = authService.generateToken(authTokenDec);
+
+        assertEquals(id, new String(decoder.decode(idRev)));
     }
 
     @Test
