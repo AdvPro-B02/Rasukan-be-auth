@@ -62,7 +62,7 @@ public class UserTest {
         assertEquals(email, staff.getEmail());
         assertEquals(password, staff.getPassword());
         assertEquals(phoneNumber, staff.getPhoneNumber());
-        assertNull(staff.getBalance());
+        assertEquals(0, staff.getBalance());
         assertTrue(staff.isStaff());
     }
 }
