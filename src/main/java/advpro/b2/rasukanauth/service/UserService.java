@@ -9,4 +9,5 @@ public interface UserService {
     List<User> getAllUser();
     User getUserById();
     User createUser(UserBuilder userBuilder);
+    String getUserByEmailAndPassword(String email, String password);
 }

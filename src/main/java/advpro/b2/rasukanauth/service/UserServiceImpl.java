@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,5 +29,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(UserBuilder userBuilder) {
         return userRepository.save(userBuilder.build());
+    }
+
+    @Override
+    public String getUserByEmailAndPassword(String email, String password) {
+        User user = userRepository.findByEmailAndPassword(email, password);
+        if (user == null) {
+            throw new NoSuchElementException("Incorrect email or password");
+        }
+        return user.getId().toString();
     }
 }
