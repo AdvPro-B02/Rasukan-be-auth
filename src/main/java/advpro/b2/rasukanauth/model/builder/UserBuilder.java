@@ -10,9 +10,8 @@ public class UserBuilder {
     private String email;
     private String phoneNumber;
     private String password;
-    private Long balance;
+    private int balance;
     private boolean isStaff;
-    private String token;
 
     public void setId(UUID id) {
         this.id = id;
@@ -34,7 +33,7 @@ public class UserBuilder {
         this.password = password;
     }
 
-    public void setBalance(Long balance) {
+    public void setBalance(int balance) {
         this.balance = balance;
     }
 
@@ -42,11 +41,7 @@ public class UserBuilder {
         this.isStaff = isStaff;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public User build() {
-        return new User(id, name, email, password, phoneNumber, balance, isStaff, token);
+        return new User(id, name, email, password, phoneNumber, balance, isStaff);
     }
 }

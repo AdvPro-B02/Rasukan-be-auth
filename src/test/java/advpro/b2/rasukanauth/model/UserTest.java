@@ -24,7 +24,7 @@ public class UserTest {
         String email = "user1@test.com";
         String password = "user1";
         String phoneNumber = "1234567890";
-        Long balance = 123456789L;
+        int balance = 123456789;
         userBuilder.setId(id);
         userBuilder.setName(name);
         userBuilder.setEmail(email);
@@ -40,7 +40,6 @@ public class UserTest {
         assertEquals(phoneNumber, user.getPhoneNumber());
         assertEquals(balance, user.getBalance());
         assertFalse(user.isStaff());
-        assertNull(user.getToken());
     }
 
     @Test
@@ -65,6 +64,5 @@ public class UserTest {
         assertEquals(phoneNumber, staff.getPhoneNumber());
         assertNull(staff.getBalance());
         assertTrue(staff.isStaff());
-        assertNull(staff.getToken());
     }
 }
