@@ -4,10 +4,14 @@ import advpro.b2.rasukanauth.model.User;
 import advpro.b2.rasukanauth.model.builder.UserBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.util.Base64;
+import java.util.NoSuchElementException;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+
+    private final byte[] key = {77, 45, 90, 13, 121, 59};
 
     private UserService userService;
 
@@ -25,8 +29,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String login() {
-        return null;
+    public String login(String email, String password) throws NoSuchElementException {
+        String id = userService.getUserByEmailAndPassword(email, password);
+        return generateToken(id);
     }
 
     @Override
@@ -35,8 +40,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String generateToken() {
-        return null;
+    public String generateToken(String id) {
+        byte[] idBytes = id.getBytes();
+        for (int i = 0; i < idBytes.length; i++) {
+            idBytes[i] ^= key[i % key.length];
+        }
+        return Base64.getEncoder().encodeToString(idBytes);
     }
 
     @Override
