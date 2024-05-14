@@ -1,7 +1,9 @@
 name: Test Codebase
 
 on:
-  push
+  push:
+    paths:
+      - '**.java'
 
 jobs:
   test:
