@@ -2,10 +2,6 @@ name: rasukan-auth
 
 services:
   rasukan:
-    environment:
-      - REGISTRY_USER=${REGISTRY_USER}
-      - IMAGE_NAME=${IMAGE_NAME}
-      - IMAGE_TAG=${IMAGE_TAG}
     image: ${REGISTRY_USER}/${IMAGE_NAME}:${IMAGE_TAG}
     container_name: rasukan
     ports:
