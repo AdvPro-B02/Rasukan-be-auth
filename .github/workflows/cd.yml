@@ -70,6 +70,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: publish
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Install SSH client
         run: sudo apt-get install openssh-client
 
@@ -81,7 +84,11 @@ jobs:
 
       - name: Deploy to GCP
         run: |
+          scp -o StrictHostKeyChecking=no -i ssh-key.pem ./docker-compose.yml ./monitoring ${{ secrets.GCP_USERNAME }}@${{ secrets.GCP_STATIC_IP }} 
           ssh -o StrictHostKeyChecking=no -i ssh-key.pem ${{ secrets.GCP_USERNAME }}@${{ secrets.GCP_STATIC_IP }} "
-            sudo docker container rm -f ${{ secrets.CONTAINER_NAME }} || true &&
-            sudo docker image rm -f ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} || true &&
-            sudo docker run --name ${{ secrets.CONTAINER_NAME }} -d -p 80:8080 ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}"
+            cat << EOF > .env
+            REGISTRY_USER=${{ secrets.REGISTRY_USER }}
+            IMAGE_NAME=${{ secrets.IMAGE_NAME }}
+            IMAGE_TAG=${{ secrets.IMAGE_TAG }}
+            EOF
+            sudo docker-compose up -d"
