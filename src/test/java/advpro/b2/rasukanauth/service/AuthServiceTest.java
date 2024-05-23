@@ -76,11 +76,6 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testLogout() {
-        assertNull(authService.logout());
-    }
-
-    @Test
     void testGenerateToken() {
         String id = UUID.randomUUID().toString();
         String authToken = authService.generateToken(id);
@@ -92,7 +87,32 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testValidateToken() {
-        assertFalse(authService.validateToken());
+    void testConvertTokenToId() {
+        String id = UUID.randomUUID().toString();
+        String token = authService.generateToken(id);
+        String convertedToken = authService.tokenToId(token);
+
+        assertEquals(id, convertedToken);
+    }
+
+    @Test
+    void testValidateToken_validToken() {
+        UserBuilder userBuilder = new UserBuilder();
+        userBuilder.setId(UUID.fromString("68e1011c-0021-4ae9-9d11-0deabf9cb449"));
+        userBuilder.setName("TestService");
+        userBuilder.setEmail("service@test.com");
+        userBuilder.setPassword("servicetest");
+        User user = userBuilder.build();
+
+        String token = authService.generateToken(user.getId().toString());
+        doReturn(user).when(userService).getUserById(any(String.class));
+        assertTrue(authService.validateToken(token));
+    }
+
+    @Test
+    void testValidateToken_invalidToken() {
+        String invalidToken = authService.generateToken("2087f243-db5c-4116-a62b-40f9977b9631");
+        doReturn(null).when(userService).getUserById(any(String.class));
+        assertFalse(authService.validateToken(invalidToken));
     }
 }

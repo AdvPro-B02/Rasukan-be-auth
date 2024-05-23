@@ -5,7 +5,6 @@ import advpro.b2.rasukanauth.service.AuthService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,9 +15,8 @@ import java.util.NoSuchElementException;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-@WebMvcTest(value = AuthController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@WebMvcTest(value = AuthController.class)
 class AuthControllerTest {
 
     @Autowired
@@ -109,17 +107,8 @@ class AuthControllerTest {
     }
 
     @Test
-    void testLogout_success() throws Exception {
-        mvc.perform(post("/auth/logout").with(csrf()))
-            .andExpect(status().isOk())
-            .andExpect(content().string(
-                "Hi, this API currently is not functional. Thanks for the interest"
-            ));
-    }
-
-    @Test
     void testGetTokenLoggedIn() throws Exception {
-        mvc.perform(post("/auth/get-token").with(csrf()))
+        mvc.perform(post("/auth/get-token"))
             .andExpect(status().isOk())
             .andExpect(content().string(
                 "Hi, this API currently is not functional. Thanks for the interest"
@@ -128,7 +117,7 @@ class AuthControllerTest {
 
     @Test
     void testGetTokenNotLoggedIn() throws Exception {
-        mvc.perform(post("/auth/get-token").with(csrf()))
+        mvc.perform(post("/auth/get-token"))
             .andExpect(status().isOk())
             .andExpect(content().string(
                 "Hi, this API currently is not functional. Thanks for the interest"

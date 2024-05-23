@@ -3,7 +3,7 @@ name: rasukan-auth
 services:
   rasukan:
     image: ${REGISTRY_USER}/${IMAGE_NAME}:${IMAGE_TAG}
-    container_name: rasukan
+    container_name: ${CONTAINER_NAME}
     ports:
       - "80:8080"
 

@@ -40,12 +40,6 @@ class AuthController {
         return new ResponseEntity<>(headers, HttpStatus.OK);
     }
 
-    @PostMapping("/logout")
-    @ResponseBody
-    public String logout() {
-        return "Hi, this API currently is not functional. Thanks for the interest";
-    }
-
     @PostMapping("/get-token")
     @ResponseBody
     public String getToken() {
