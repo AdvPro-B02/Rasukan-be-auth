@@ -34,11 +34,6 @@ public class AuthServiceImpl implements AuthService {
         return generateToken(id);
     }
 
-    @Override
-    public String logout() {
-        return null;
-    }
-
     private void xorBytes(byte[] bytes) {
         for (int i = 0; i < bytes.length; i++) {
             bytes[i] ^= key[i % key.length];

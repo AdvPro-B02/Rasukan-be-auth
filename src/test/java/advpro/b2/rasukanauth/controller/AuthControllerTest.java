@@ -5,7 +5,6 @@ import advpro.b2.rasukanauth.service.AuthService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,7 +16,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(value = AuthController.class, excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@WebMvcTest(value = AuthController.class)
 class AuthControllerTest {
 
     @Autowired
@@ -105,15 +104,6 @@ class AuthControllerTest {
                         .content("email=test2@test.com&password=test2"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(header().doesNotExist("Authorization"));
-    }
-
-    @Test
-    void testLogout_success() throws Exception {
-        mvc.perform(post("/auth/logout"))
-            .andExpect(status().isOk())
-            .andExpect(content().string(
-                "Hi, this API currently is not functional. Thanks for the interest"
-            ));
     }
 
     @Test

@@ -76,11 +76,6 @@ public class AuthServiceTest {
     }
 
     @Test
-    void testLogout() {
-        assertNull(authService.logout());
-    }
-
-    @Test
     void testGenerateToken() {
         String id = UUID.randomUUID().toString();
         String authToken = authService.generateToken(id);
