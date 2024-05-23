@@ -9,5 +9,6 @@ public interface AuthService {
     String login(String email, String password);
     String logout();
     String generateToken(String id);
-    boolean validateToken();
+    String tokenToId(String token);
+    boolean validateToken(String token);
 }

@@ -39,17 +39,29 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
+    private void xorBytes(byte[] bytes) {
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] ^= key[i % key.length];
+        }
+    }
+
     @Override
     public String generateToken(String id) {
         byte[] idBytes = id.getBytes();
-        for (int i = 0; i < idBytes.length; i++) {
-            idBytes[i] ^= key[i % key.length];
-        }
+        xorBytes(idBytes);
         return Base64.getEncoder().encodeToString(idBytes);
     }
 
     @Override
-    public boolean validateToken() {
-        return false;
+    public String tokenToId(String token) {
+        byte[] tokenDec = Base64.getDecoder().decode(token);
+        xorBytes(tokenDec);
+        return new String(tokenDec);
+    }
+
+    @Override
+    public boolean validateToken(String token) {
+        String id = tokenToId(token);
+        return userService.getUserById(id) != null;
     }
 }
