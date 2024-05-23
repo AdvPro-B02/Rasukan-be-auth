@@ -13,6 +13,18 @@ public class UserBuilder {
     private int balance;
     private boolean isStaff;
 
+    public UserBuilder(User user) {
+        this.id = user.getId();
+        this.name = user.getName();
+        this.email = user.getEmail();
+        this.phoneNumber = user.getPhoneNumber();
+        this.password = user.getPassword();
+        this.balance = user.getBalance();
+        this.isStaff = user.isStaff();
+    }
+
+    public UserBuilder() {}
+
     public void setId(UUID id) {
         this.id = id;
     }
