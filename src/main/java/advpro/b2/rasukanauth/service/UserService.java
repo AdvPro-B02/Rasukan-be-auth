@@ -9,7 +9,7 @@ public interface UserService {
     List<User> getAllUser();
     User getUserById(String id);
     User createUser(UserBuilder userBuilder);
-    String getUserByEmailAndPassword(String email, String password);
+    User getUserByEmailAndPassword(String email, String password);
     int getUserBalance(String id);
     User updateUserBalance(String id, int balance);
 }

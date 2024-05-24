@@ -32,12 +32,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String getUserByEmailAndPassword(String email, String password) {
+    public User getUserByEmailAndPassword(String email, String password) {
         User user = userRepository.findByEmailAndPassword(email, password);
         if (user == null) {
             throw new NoSuchElementException("Incorrect email or password");
         }
-        return user.getId().toString();
+        return user;
     }
 
     @Override

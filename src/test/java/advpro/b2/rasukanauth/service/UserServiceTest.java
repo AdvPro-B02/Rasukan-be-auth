@@ -105,9 +105,9 @@ public class UserServiceTest {
     void testGetUserByEmailAndPassword_success() {
         doReturn(testUser).when(userRepository).findByEmailAndPassword(any(String.class), any(String.class));
 
-        String userId = userService.getUserByEmailAndPassword("service@test.com", "servicetest");
+        User user = userService.getUserByEmailAndPassword("service@test.com", "servicetest");
         verify(userRepository, times(1)).findByEmailAndPassword(any(String.class), any(String.class));
-        assertEquals(userId, testUser.getId().toString());
+        assertEquals(user.getId(), testUser.getId());
     }
 
     @Test

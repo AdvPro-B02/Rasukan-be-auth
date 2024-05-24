@@ -57,13 +57,20 @@ public class AuthServiceTest {
 
     @Test
     void testLogin_success() {
-        String id = UUID.randomUUID().toString();
         String email = "test@test.com";
         String password = "testpass";
-        doReturn(id).when(userService).getUserByEmailAndPassword(email, password);
+        UserBuilder userBuilder = new UserBuilder();
+        userBuilder.setId(UUID.randomUUID());
+        userBuilder.setName("TestService");
+        userBuilder.setEmail(email);
+        userBuilder.setPassword(password);
+        User user = userBuilder.build();
+        doReturn(user).when(userService).getUserByEmailAndPassword(email, password);
 
         assertDoesNotThrow(() -> authService.login(email, password));
         verify(userService, times(1)).getUserByEmailAndPassword(email, password);
+        User loggedInUser = authService.login(email, password);
+        assertEquals(user.getId(), loggedInUser.getId());
     }
 
     @Test
