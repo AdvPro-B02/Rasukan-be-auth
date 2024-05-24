@@ -3,6 +3,7 @@ plugins {
     id("org.springframework.boot") version "3.2.4"
     id("io.spring.dependency-management") version "1.1.4"
     jacoco
+    id("org.sonarqube") version "4.4.1.3373"
 }
 
 group = "advpro.b2"
@@ -53,5 +54,13 @@ tasks.jacocoTestReport {
         xml.required.set(false)
         csv.required.set(false)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "AdvPro-B02_Rasukan-be-auth")
+        property("sonar.organization", "adprob2")
+        property("sonar.host.url", "https://sonarcloud.io/")
     }
 }
