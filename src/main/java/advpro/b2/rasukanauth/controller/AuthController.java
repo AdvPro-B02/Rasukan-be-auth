@@ -1,13 +1,19 @@
 package advpro.b2.rasukanauth.controller;
 
+import advpro.b2.rasukanauth.model.User;
 import advpro.b2.rasukanauth.model.builder.UserBuilder;
 import advpro.b2.rasukanauth.service.AuthService;
+import advpro.b2.rasukanauth.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @RestController
@@ -18,31 +24,44 @@ class AuthController {
     AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@ModelAttribute UserBuilder userBuilder) {
+    public ResponseEntity<Map<String, String>> register(@ModelAttribute UserBuilder userBuilder) {
+        Map<String, String> body = new HashMap<>();
+        body.put("status", "success");
         try {
             authService.register(userBuilder);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            body.put("status", "email already used");
+            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(body, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password) {
-        String token;
+    public ResponseEntity<Map<String, String>> login(@RequestParam String email, @RequestParam String password, HttpServletResponse response) {
+        Map<String, String> body = new HashMap<>();
+        body.put("status", "success");
+        User user;
         try {
-            token = authService.login(email, password);
+            user = authService.login(email, password);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            body.put("status", "invalid email or password");
+            return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
         }
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + token);
-        return new ResponseEntity<>(headers, HttpStatus.OK);
+
+        body.put("id", user.getId().toString());
+        body.put("name", user.getName());
+        body.put("balance", Integer.toString(user.getBalance()));
+        String token = authService.generateToken(user.getId().toString());
+        response.addCookie(new Cookie("token", token));
+        response.addCookie(new Cookie("staff", Boolean.toString(user.isStaff())));
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 
-    @PostMapping("/get-token")
+    @PostMapping("/validate")
     @ResponseBody
-    public String getToken() {
-        return "Hi, this API currently is not functional. Thanks for the interest";
+    public ResponseEntity<Map<String, Boolean>> validate(@CookieValue("token") String token) {
+        Map<String, Boolean> body = new HashMap<>();
+        body.put("valid", authService.validateToken(token));
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 }

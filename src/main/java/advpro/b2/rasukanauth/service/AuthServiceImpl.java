@@ -29,9 +29,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String login(String email, String password) throws NoSuchElementException {
-        String id = userService.getUserByEmailAndPassword(email, password);
-        return generateToken(id);
+    public User login(String email, String password) throws NoSuchElementException {
+        return userService.getUserByEmailAndPassword(email, password);
     }
 
     private void xorBytes(byte[] bytes) {

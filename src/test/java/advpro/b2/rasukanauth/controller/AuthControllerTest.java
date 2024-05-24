@@ -1,7 +1,9 @@
 package advpro.b2.rasukanauth.controller;
 
+import advpro.b2.rasukanauth.model.User;
 import advpro.b2.rasukanauth.model.builder.UserBuilder;
 import advpro.b2.rasukanauth.service.AuthService;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +13,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -33,7 +38,8 @@ class AuthControllerTest {
         mvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1"))
-            .andExpect(status().isCreated());
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status", is("success")));
     }
 
     @Test
@@ -47,7 +53,8 @@ class AuthControllerTest {
         mvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("id=b9eed58d-031c-466f-bdb8-2cf95a9d11e1&name=Test2&email=test1@test.com&password=test2"))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status", not(is("success"))));
     }
 
     @Test
@@ -56,12 +63,17 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("id=02619f07-c3e1-408e-bc1c-028e20cfe79e&name=Test1&email=test1@test.com&password=test1"));
 
-        doReturn("dummy-token").when(authService).login(any(String.class), any(String.class));
+        UserBuilder builder = new UserBuilder();
+        builder.setId(UUID.fromString("68e1011c-0021-4ae9-9d11-0deabf9cb449"));
+        User user = builder.build();
+        doReturn(user).when(authService).login(any(String.class), any(String.class));
         mvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("email=test1@test.com&password=test1"))
             .andExpect(status().isOk())
-            .andExpect(header().exists("Authorization"));
+            .andExpect(header().exists("Set-Cookie"))
+            .andExpect(cookie().exists("token"))
+            .andExpect(cookie().exists("staff"));
     }
 
     @Test
@@ -75,7 +87,9 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("email=test2@test.com&password=test1"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(header().doesNotExist("Authorization"));
+                .andExpect(header().doesNotExist("Set-Cookie"))
+                .andExpect(cookie().doesNotExist("token"))
+                .andExpect(cookie().doesNotExist("staff"));
     }
 
     @Test
@@ -89,7 +103,9 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("email=test1@test.com&password=test2"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(header().doesNotExist("Authorization"));
+                .andExpect(header().doesNotExist("Set-Cookie"))
+                .andExpect(cookie().doesNotExist("token"))
+                .andExpect(cookie().doesNotExist("staff"));
     }
 
     @Test
@@ -103,24 +119,23 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("email=test2@test.com&password=test2"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(header().doesNotExist("Authorization"));
+                .andExpect(header().doesNotExist("Set-Cookie"))
+                .andExpect(cookie().doesNotExist("token"))
+                .andExpect(cookie().doesNotExist("staff"));
     }
 
     @Test
-    void testGetTokenLoggedIn() throws Exception {
-        mvc.perform(post("/auth/get-token"))
+    void testValidateToken() throws Exception {
+        doReturn(true).when(authService).validateToken(any(String.class));
+        mvc.perform(post("/auth/validate")
+                .cookie(new Cookie("token", "L0k5OUgJfBR3aE4JfQBuOkBeYBRobhgWfB45bh8NKExvOU9a")))
             .andExpect(status().isOk())
-            .andExpect(content().string(
-                "Hi, this API currently is not functional. Thanks for the interest"
-            ));
-    }
+            .andExpect(jsonPath("$.valid", is(true)));
 
-    @Test
-    void testGetTokenNotLoggedIn() throws Exception {
-        mvc.perform(post("/auth/get-token"))
+        doReturn(false).when(authService).validateToken(any(String.class));
+        mvc.perform(post("/auth/validate")
+                .cookie(new Cookie("token", "L0k5OUgJfBR3aE4JfQBuOkBeYBRobhgWfB45bh8NKExvOU9a")))
             .andExpect(status().isOk())
-            .andExpect(content().string(
-                "Hi, this API currently is not functional. Thanks for the interest"
-            ));
+            .andExpect(jsonPath("$.valid", is(false)));
     }
 }
