@@ -3,7 +3,6 @@ package advpro.b2.rasukanauth.controller;
 import advpro.b2.rasukanauth.model.User;
 import advpro.b2.rasukanauth.model.builder.UserBuilder;
 import advpro.b2.rasukanauth.service.AuthService;
-import advpro.b2.rasukanauth.service.UserService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
