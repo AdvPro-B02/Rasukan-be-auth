@@ -23,7 +23,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(String id) {
         Optional<User> user = userRepository.findById(UUID.fromString(id));
-        return user.orElse(null);
+        if (user.isEmpty()) {
+            throw new NoSuchElementException("User does not exists");
+        }
+        return user.get();
     }
 
     @Override
@@ -43,18 +46,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public int getUserBalance(String id) {
         User user = getUserById(id);
-        if (user == null) {
-            throw new NoSuchElementException("User not found");
-        }
         return user.getBalance();
     }
 
     @Override
     public User updateUserBalance(String id, int saldo) {
         User user = getUserById(id);
-        if (user == null) {
-            throw new NoSuchElementException("User not found");
-        }
         UserBuilder builder = new UserBuilder(user);
         builder.setBalance(saldo);
         return userRepository.save(builder.build());

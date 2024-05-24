@@ -79,8 +79,8 @@ public class UserServiceTest {
     void testGetUserById_fail() {
         doReturn(Optional.empty()).when(userRepository).findById(any(UUID.class));
 
-        User user = userService.getUserById(testUser.getId().toString());
-        assertNull(user);
+        String id = UUID.randomUUID().toString();
+        assertThrows(NoSuchElementException.class, () -> userService.getUserById(id));
     }
 
     @Test
@@ -137,9 +137,7 @@ public class UserServiceTest {
     void testGetUserBalance_userDoesNotExists() {
         doReturn(Optional.empty()).when(userRepository).findById(any(UUID.class));
 
-        assertThrows(NoSuchElementException.class, () -> {
-            userService.getUserBalance("68e1011c-0021-4ae9-9d11-0deabf9cb449");
-        });
+        assertThrows(NoSuchElementException.class, () -> userService.getUserBalance("68e1011c-0021-4ae9-9d11-0deabf9cb449"));
     }
 
     @Test
@@ -160,8 +158,6 @@ public class UserServiceTest {
     void testUpdateUserBalance_userDoesNotExists() {
         doReturn(Optional.empty()).when(userRepository).findById(any(UUID.class));
 
-        assertThrows(NoSuchElementException.class, () -> {
-            userService.updateUserBalance("68e1011c-0021-4ae9-9d11-0deabf9cb449", 100);
-        });
+        assertThrows(NoSuchElementException.class, () -> userService.updateUserBalance("68e1011c-0021-4ae9-9d11-0deabf9cb449", 100));
     }
 }
