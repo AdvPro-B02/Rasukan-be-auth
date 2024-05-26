@@ -58,7 +58,7 @@ class UserController {
         }
 
         Map<String, String> body = new HashMap<>();
-        body.put("status", "success");
+        body.put("success", "true");
         body.put("balance", Integer.toString(balance));
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
