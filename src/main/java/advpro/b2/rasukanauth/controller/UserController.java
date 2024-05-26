@@ -23,20 +23,13 @@ class UserController {
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Map<String, String>> getUser(@PathVariable("id") String id) {
-        Map<String, String> body = new HashMap<>();
-        body.put("status", "success");
         User user;
         try {
             user = userService.getUserById(id);
         } catch (NoSuchElementException | IllegalArgumentException e) {
-            body.put("status", "user does not exist");
-            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(bodyFail("User does not exists"), HttpStatus.BAD_REQUEST);
         }
-
-        body.put("id", user.getId().toString());
-        body.put("name", user.getName());
-        body.put("balance", Integer.toString(user.getBalance()));
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        return new ResponseEntity<>(bodySuccess(user), HttpStatus.OK);
     }
 
     @GetMapping
@@ -57,16 +50,15 @@ class UserController {
     @GetMapping("/{id}/balance")
     @ResponseBody
     public ResponseEntity<Map<String, String>> getUserBalance(@PathVariable("id") String id) {
-        Map<String, String> body = new HashMap<>();
-        body.put("status", "success");
         int balance;
         try {
             balance = userService.getUserBalance(id);
         } catch (NoSuchElementException | IllegalArgumentException e) {
-            body.put("status", "user does not exist");
-            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(bodyFail("User does not exists"), HttpStatus.BAD_REQUEST);
         }
 
+        Map<String, String> body = new HashMap<>();
+        body.put("success", "true");
         body.put("balance", Integer.toString(balance));
         return new ResponseEntity<>(body, HttpStatus.OK);
     }
@@ -74,19 +66,28 @@ class UserController {
     @PutMapping("/{id}/balance")
     @ResponseBody
     public ResponseEntity<Map<String, String>> updateUserBalance(@PathVariable("id") String id, @RequestParam int balance) {
-        Map<String, String> body = new HashMap<>();
-        body.put("status", "success");
         User user;
         try {
             user = userService.updateUserBalance(id, balance);
         } catch (NoSuchElementException | IllegalArgumentException e) {
-            body.put("status", "user does not exist");
-            return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(bodyFail("User does not exists"), HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity<>(bodySuccess(user), HttpStatus.OK);
+    }
 
+    private Map<String, String> bodySuccess(User user) {
+        Map<String, String> body = new HashMap<>();
+        body.put("success", "true");
         body.put("id", user.getId().toString());
         body.put("name", user.getName());
         body.put("balance", Integer.toString(user.getBalance()));
-        return new ResponseEntity<>(body, HttpStatus.OK);
+        return body;
+    }
+
+    private Map<String, String> bodyFail(String message) {
+        Map<String, String> body = new HashMap<>();
+        body.put("success", "false");
+        body.put("message", message);
+        return body;
     }
 }
