@@ -19,7 +19,6 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,7 +49,7 @@ class UserControllerTest {
         doReturn(user).when(userService).getUserById(any(String.class));
         mvc.perform(get("/api/users/bdc41219-e720-479e-92ca-13ccf6ea546a"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("success")))
+                .andExpect(jsonPath("$.success", is("true")))
                 .andExpect(jsonPath("$.id", is(user.getId().toString())))
                 .andExpect(jsonPath("$.name", is(user.getName())))
                 .andExpect(jsonPath("$.balance", is(Integer.toString(user.getBalance()))));
@@ -61,7 +60,7 @@ class UserControllerTest {
         doThrow(NoSuchElementException.class).when(userService).getUserById(any(String.class));
         mvc.perform(get("/api/users/bdc41219-e720-479e-92ca-13ccf6ea546a"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", not(is("success"))));
+                .andExpect(jsonPath("$.success", is("false")));
     }
 
     @Test
@@ -91,7 +90,7 @@ class UserControllerTest {
         doReturn(user.getBalance()).when(userService).getUserBalance(any(String.class));
         mvc.perform(get("/api/users/bdc41219-e720-479e-92ca-13ccf6ea546a/balance"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("success")))
+                .andExpect(jsonPath("$.success", is("true")))
                 .andExpect(jsonPath("$.balance", is(Integer.toString(user.getBalance()))));
     }
 
@@ -100,7 +99,7 @@ class UserControllerTest {
         doThrow(NoSuchElementException.class).when(userService).getUserBalance(any(String.class));
         mvc.perform(get("/api/users/bdc41219-e720-479e-92ca-13ccf6ea546a/balance"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", not(is("success"))));
+                .andExpect(jsonPath("$.success", is("false")));
     }
 
     @Test
@@ -110,7 +109,7 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("balance=100"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("success")))
+                .andExpect(jsonPath("$.success", is("true")))
                 .andExpect(jsonPath("$.id", is(user.getId().toString())))
                 .andExpect(jsonPath("$.name", is(user.getName())))
                 .andExpect(jsonPath("$.balance", is(Integer.toString(user.getBalance()))));
@@ -123,6 +122,6 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .content("balance=100"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", not(is("success"))));
+                .andExpect(jsonPath("$.success", is("false")));
     }
 }

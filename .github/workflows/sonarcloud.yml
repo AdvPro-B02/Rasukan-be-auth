@@ -5,8 +5,12 @@ on:
       - main
       - staging
       - dev
+    paths:
+      - '**.java'
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - '**.java'
 
 jobs:
   build:
